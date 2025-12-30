@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PW}@cluster0.g7wrqc5.mongodb.net/shop?retryWrites=true&appName=Cluster0`;
 
 let _db;
-const mongoConnect = () => {
+const mongoConnect = (callback) => {
   MongoClient.connect(uri)
     .then((client) => {
       console.log("MongoDB is connected!");
