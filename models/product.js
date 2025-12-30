@@ -10,9 +10,22 @@ class Product {
 
   save() {
     const db = getDb();
-    return db.collection("products")
+    return db
+      .collection("products")
       .insertOne(this)
       .then((result) => console.log(result))
+      .catch((e) => console.log(e));
+  }
+
+  static fetchAll() {
+    const db = getDb();
+    return db
+      .collection("products")
+      .find()
+      .toArray()
+      .then((products) => {
+        return products;
+      })
       .catch((e) => console.log(e));
   }
 }
