@@ -30,8 +30,10 @@ exports.postAddProduct = (req, res, next) => {
   const product = new Product(
     req.body.title,
     req.body.price,
+    req.body.description,
     req.body.imageUrl,
-    req.body.description
+    null, 
+    req.user._id
   );
   product
     .save()
@@ -48,6 +50,7 @@ exports.postEditProduct = (req, res, next) => {
     req.body.description,
     req.body.imageUrl,
     req.body.productId,
+    req.user._id
   );
   product
     .save()
