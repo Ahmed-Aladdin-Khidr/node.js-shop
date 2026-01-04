@@ -43,7 +43,12 @@ class User {
 
   getCart() {
     const db = getDb();
-    const productIds = this.cart.items.map((i) => i.productId);
+    let productIds=[];
+    if (this.cart){
+      if (this.cart.items){
+        productIds = this.cart.items.map((i) => i.productId);
+      }
+    }
     return db
       .collection("products")
       .find({ _id: { $in: productIds } })
@@ -58,6 +63,19 @@ class User {
           };
         });
       });
+  }
+
+  deleteCartItem(productId) {
+    const updatedCartItems = this.cart.items.filter((item) => {
+      return String(item.productId) !== productId;
+    });
+    const db = getDb();
+    return db
+      .collection("users")
+      .updateOne(
+        { _id: new ObjectId(this._id) },
+        { $set: { cart: {items: updatedCartItems} } }
+      );
   }
 
   static findById(_id) {
