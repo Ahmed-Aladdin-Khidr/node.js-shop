@@ -43,9 +43,9 @@ class User {
 
   getCart() {
     const db = getDb();
-    let productIds=[];
-    if (this.cart){
-      if (this.cart.items){
+    let productIds = [];
+    if (this.cart) {
+      if (Array.isArray(this.cart.items)) {
         productIds = this.cart.items.map((i) => i.productId);
       }
     }
@@ -74,8 +74,36 @@ class User {
       .collection("users")
       .updateOne(
         { _id: new ObjectId(this._id) },
-        { $set: { cart: {items: updatedCartItems} } }
+        { $set: { cart: { items: updatedCartItems } } }
       );
+  }
+
+  addOrder() {
+    const db = getDb();
+    return this.getCart()
+      .then((products) => {
+        const order = {
+          items: products,
+          user: {
+            _id: new ObjectId(this._id),
+            userName: this.userName,
+          },
+        };
+        return db.collection("orders").insertOne(order);
+      })
+      .then((result) => {
+        this.cart = { items: [] };
+        return db
+          .collection("users")
+          .updateOne(
+            { _id: new ObjectId(this._id) },
+            { $set: { cart: { items: { items: [] } } } }
+          );
+      });
+  }
+
+  getOrders() {
+    const db = getDb();
   }
 
   static findById(_id) {
