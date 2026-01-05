@@ -49,6 +49,26 @@ class User {
         productIds = this.cart.items.map((i) => i.productId);
       }
     }
+    db.collection("products")
+      .find()
+      .toArray()
+      .then((products) => {
+        // 1. Create a Set of IDs from the products array (for O(1) lookup speed)
+        const existingProductIds = new Set(
+          products.map((p) => p._id.toString())
+        );
+        // 2. Filter the cart: only keep items whose productId IS in the existing list
+        const updatedCartItems = this.cart.items.filter((item) =>
+          existingProductIds.has(item.productId.toString())
+        );
+
+        this.cart.items = updatedCartItems;
+
+        db.collection("users").updateOne(
+          { _id: new ObjectId(this._id) },
+          { $set: { "cart.items": updatedCartItems } }
+        );
+      });
     return db
       .collection("products")
       .find({ _id: { $in: productIds } })
