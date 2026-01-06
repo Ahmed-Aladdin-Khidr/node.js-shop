@@ -1,42 +1,42 @@
-// const Product = require("../models/product");
+const Product = require("../models/product");
 // const User = require("../models/user");
 
-// exports.getProducts = (req, res, next) => {
-//   Product.fetchAll()
-//     .then((products) => {
-//       res.render("shop/product-list", {
-//         prods: products,
-//         pageTitle: "Shop",
-//         path: "/products",
-//       });
-//     })
-//     .catch((err) => console.log(err));
-// };
+exports.getProducts = (req, res, next) => {
+  Product.find()
+    .then((products) => {
+      res.render("shop/product-list", {
+        prods: products,
+        pageTitle: "Shop",
+        path: "/products",
+      });
+    })
+    .catch((err) => console.log(err));
+};
 
-// exports.getProduct = (req, res, next) => {
-//   const productId = req.params.productId;
-//   Product.findById(productId)
-//     .then((product) => {
-//       res.render("shop/product-detail", {
-//         pageTitle: product.title,
-//         path: "/products",
-//         product,
-//       });
-//     })
-//     .catch((err) => console.log(err));
-// };
+exports.getProduct = (req, res, next) => {
+  const productId = req.params.productId;
+  Product.findById(productId)
+    .then((product) => {
+      res.render("shop/product-detail", {
+        pageTitle: product.title,
+        path: "/products",
+        product,
+      });
+    })
+    .catch((err) => console.log(err));
+};
 
-// exports.getIndex = (req, res, next) => {
-//   Product.fetchAll()
-//     .then((products) => {
-//       res.render("shop/index", {
-//         prods: products,
-//         pageTitle: "Shop",
-//         path: "/",
-//       });
-//     })
-//     .catch((err) => console.log(err));
-// };
+exports.getIndex = (req, res, next) => {
+  Product.find()
+    .then((products) => {
+      res.render("shop/index", {
+        prods: products,
+        pageTitle: "Shop",
+        path: "/",
+      });
+    })
+    .catch((err) => console.log(err));
+};
 
 // exports.getCart = (req, res, next) => {
 //   req.user
