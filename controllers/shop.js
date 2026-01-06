@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Order = require("../models/order");
 // const User = require("../models/user");
 
 exports.getProducts = (req, res, next) => {
@@ -40,7 +41,7 @@ exports.getIndex = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .populate('cart.items.productId')
+    .populate("cart.items.productId")
     .then((user) => {
       const products = user.cart.items;
       res.render("shop/cart", {
@@ -73,14 +74,27 @@ exports.postDeleteCartItem = (req, res, next) => {
     .catch((e) => console.log(e));
 };
 
-// exports.postOrder = (req, res, next) => {
-//   req.user
-//     .addOrder()
-//     .then((r) => {
-//       res.redirect("/orders");
-//     })
-//     .catch((e) => console.log(e));
-// };
+exports.postOrder = (req, res, next) => {
+  req.user
+    .populate("cart.items.productId")
+    .then((user) => {
+      const products = user.cart.items.map((i) => {
+        return { product: i.productId, quantity: i.quantity };
+      });
+      const order = new Order({
+        products: products,
+        user: {
+          name: req.user.name,
+          userId: req.user,
+        },
+      });
+      return order.save();
+    })
+    .then((r) => {
+      res.redirect("/orders");
+    })
+    .catch((e) => console.log(e));
+};
 
 // exports.getOrders = (req, res, next) => {
 //   req.user
