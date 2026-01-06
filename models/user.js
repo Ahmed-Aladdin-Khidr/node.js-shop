@@ -14,41 +14,50 @@ const userSchema = new Schema({
   cart: {
     items: [
       {
-        productId: { type: Schema.Types.ObjectId, ref:'Product', required: true },
+        productId: {
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
         quantity: { type: Number, required: true },
       },
     ],
   },
 });
 
-userSchema.methods.addToCart = function(product) {
-      let updatedCart = { items: [] };
-    if (this.cart && this.cart.items.length > 0) {
-      const cartProduct = this.cart.items.findIndex((cp) => {
-        return String(cp.productId) == String(product._id);
-      });
-      if (cartProduct != -1) {
-        this.cart.items[cartProduct].quantity += 1;
-      } else {
-        this.cart.items.push({ productId: product._id, quantity: 1 });
-      }
-      updatedCart = this.cart;
+userSchema.methods.addToCart = function (product) {
+  let updatedCart = { items: [] };
+  if (this.cart && this.cart.items.length > 0) {
+    const cartProduct = this.cart.items.findIndex((cp) => {
+      return String(cp.productId) == String(product._id);
+    });
+    if (cartProduct != -1) {
+      this.cart.items[cartProduct].quantity += 1;
     } else {
-      updatedCart = { items: [{ productId: product._id, quantity: 1 }] };
+      this.cart.items.push({ productId: product._id, quantity: 1 });
     }
-    this.cart = updatedCart;
-    return this.save();
+    updatedCart = this.cart;
+  } else {
+    updatedCart = { items: [{ productId: product._id, quantity: 1 }] };
+  }
+  this.cart = updatedCart;
+  return this.save();
 };
 
-userSchema.methods.deleteCartItem = function (productId){
+userSchema.methods.deleteCartItem = function (productId) {
   const updatedCartItems = this.cart.items.filter((item) => {
     return item.productId.toString() !== productId.toString();
   });
   this.cart.items = updatedCartItems;
   return this.save();
-}
+};
 
-module.exports = mongoose.model('User', userSchema);
+userSchema.methods.clearCart = function () {
+  this.cart = { items: [] };
+  return this.save();
+};
+
+module.exports = mongoose.model("User", userSchema);
 
 // const { getDb } = require("../util/database");
 // const mongodb = require("mongodb");
