@@ -1,47 +1,45 @@
-// const Product = require("../models/product");
+const Product = require("../models/product");
 
-// exports.getEditProduct = (req, res, next) => {
-//   const editMode = req.query.edit;
-//   if (!editMode) {
-//     return res.render("admin/edit-product", {
-//       pageTitle: "Add Product",
-//       path: "/admin/edit-product",
-//       editing: false,
-//     });
-//   }
-//   const prodId = req.params.productId;
+exports.getEditProduct = (req, res, next) => {
+  const editMode = req.query.edit;
+  if (!editMode) {
+    return res.render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "/admin/edit-product",
+      editing: false,
+    });
+  }
+  const prodId = req.params.productId;
 
-//   Product.findById(prodId)
-//     .then((prod) => {
-//       if (!prod) {
-//         return res.redirect("/");
-//       }
-//       res.render("admin/edit-product", {
-//         pageTitle: "Edit Product",
-//         path: "/admin/edit-product",
-//         editing: editMode,
-//         product: prod,
-//       });
-//     })
-//     .catch((e) => console.log(e));
-// };
+  Product.findById(prodId)
+    .then((prod) => {
+      if (!prod) {
+        return res.redirect("/");
+      }
+      res.render("admin/edit-product", {
+        pageTitle: "Edit Product",
+        path: "/admin/edit-product",
+        editing: editMode,
+        product: prod,
+      });
+    })
+    .catch((e) => console.log(e));
+};
 
-// exports.postAddProduct = (req, res, next) => {
-//   const product = new Product(
-//     req.body.title,
-//     req.body.price,
-//     req.body.description,
-//     req.body.imageUrl,
-//     null, 
-//     req.user._id
-//   );
-//   product
-//     .save()
-//     .then(() => {
-//       res.redirect("/admin/products");
-//     })
-//     .catch((err) => console.log(err));
-// };
+exports.postAddProduct = (req, res, next) => {
+  const product = new Product({
+    title: req.body.title,
+    price: req.body.price,
+    description: req.body.description,
+    imageUrl: req.body.imageUrl,
+  });
+  product
+    .save()
+    .then(() => {
+      res.redirect("/admin/products");
+    })
+    .catch((err) => console.log(err));
+};
 
 // exports.postEditProduct = (req, res, next) => {
 //   const product = new Product(
