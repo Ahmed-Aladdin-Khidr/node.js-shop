@@ -56,13 +56,13 @@ exports.postEditProduct = (req, res, next) => {
     .catch((e) => console.log(e));
 };
 
-// exports.postDeleteProduct = (req, res, next) => {
-//   Product.deleteById(req.body.productId)
-//     .then((r) => {
-//       res.redirect("/admin/products");
-//     })
-//     .catch((e) => console.log(e));
-// };
+exports.postDeleteProduct = (req, res, next) => {
+  Product.findByIdAndDelete(req.body.productId)
+    .then((r) => {
+      res.redirect("/admin/products");
+    })
+    .catch((e) => console.log(e));
+};
 
 exports.getProducts = (req, res, next) => {
   Product.find()
