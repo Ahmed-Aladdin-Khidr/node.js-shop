@@ -1,12 +1,19 @@
+const User = require('../models/user');
+
 exports.getLogin = (req, res, next) => {
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: false,
+    isAuth: req.session.user_id,
   });
 };
 
 exports.postLogin = (req, res, next) => {
-  req.session.isLoggedIn = true;
-  res.redirect("/");
+  User.findById("695d5d59b09c32a3886f6e5b")
+    .then((user) => {
+      req.user = user;
+      req.session.user_id = user._id.toString();
+      res.redirect("/");
+    })
+    .catch((err) => console.log(err));
 };

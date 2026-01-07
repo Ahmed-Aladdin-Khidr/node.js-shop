@@ -1,78 +1,102 @@
 const Product = require("../models/product");
 
 exports.getEditProduct = (req, res, next) => {
-  const editMode = req.query.edit;
-  if (!editMode) {
-    return res.render("admin/edit-product", {
-      pageTitle: "Add Product",
-      path: "/admin/edit-product",
-      editing: false,
-    });
-  }
-  const prodId = req.params.productId;
-
-  Product.findById(prodId)
-    .then((prod) => {
-      if (!prod) {
-        return res.redirect("/");
-      }
-      res.render("admin/edit-product", {
-        pageTitle: "Edit Product",
+  if (req.session.user_id){
+    const editMode = req.query.edit;
+    if (!editMode) {
+      return res.render("admin/edit-product", {
+        pageTitle: "Add Product",
         path: "/admin/edit-product",
-        editing: editMode,
-        product: prod,
+        editing: false,
+        isAuth: req.session.user_id
       });
-    })
-    .catch((e) => console.log(e));
+    }
+    const prodId = req.params.productId;
+  
+    Product.findById(prodId)
+      .then((prod) => {
+        if (!prod) {
+          return res.redirect("/");
+        }
+        res.render("admin/edit-product", {
+          pageTitle: "Edit Product",
+          path: "/admin/edit-product",
+          editing: editMode,
+          product: prod,
+          isAuth: req.session.user_id
+        });
+      })
+      .catch((e) => console.log(e));
+  }else{
+    res.redirect('/');
+  }
 };
 
 exports.postAddProduct = (req, res, next) => {
-  const product = new Product({
-    title: req.body.title,
-    price: req.body.price,
-    description: req.body.description,
-    imageUrl: req.body.imageUrl,
-    userId: req.user
-  });
-  product
-    .save()
-    .then(() => {
-      res.redirect("/admin/products");
-    })
-    .catch((err) => console.log(err));
+  if (req.session.user_id){
+    const product = new Product({
+      title: req.body.title,
+      price: req.body.price,
+      description: req.body.description,
+      imageUrl: req.body.imageUrl,
+      userId: req.session.user_id
+    });
+    product
+      .save()
+      .then(() => {
+        res.redirect("/admin/products");
+      })
+      .catch((err) => console.log(err));
+  }else{
+    res.redirect('/');
+  }
 };
 
 exports.postEditProduct = (req, res, next) => {
-  Product.findById(req.body.productId)
-    .then((product) => {
-      product.title = req.body.title;
-      product.price = req.body.price;
-      product.description = req.body.description;
-      product.imageUrl = req.body.imageUrl;
-      return product.save();
-    })
-    .then((r) => {
-      res.redirect("/admin/products");
-    })
-    .catch((e) => console.log(e));
+  if (req.session.user_id){
+
+    Product.findById(req.body.productId)
+      .then((product) => {
+        product.title = req.body.title;
+        product.price = req.body.price;
+        product.description = req.body.description;
+        product.imageUrl = req.body.imageUrl;
+        return product.save();
+      })
+      .then((r) => {
+        res.redirect("/admin/products");
+      })
+      .catch((e) => console.log(e));
+  }else{
+    res.redirect('/');
+  }
 };
 
 exports.postDeleteProduct = (req, res, next) => {
-  Product.findByIdAndDelete(req.body.productId)
-    .then((r) => {
-      res.redirect("/admin/products");
-    })
-    .catch((e) => console.log(e));
+  if (req.session.user_id){
+    Product.findByIdAndDelete(req.body.productId)
+      .then((r) => {
+        res.redirect("/admin/products");
+      })
+      .catch((e) => console.log(e));
+  }else{
+    res.redirect('/');
+  }
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
-    .then((products) => {
-      res.render("admin/products", {
-        prods: products,
-        pageTitle: "Admin Products",
-        path: "/admin/products",
-      });
-    })
-    .catch((e) => console.log(e));
+  if (req.session.user_id){
+    Product.find()
+      .then((products) => {
+        res.render("admin/products", {
+          prods: products,
+          pageTitle: "Admin Products",
+          path: "/admin/products",
+          isAuth: req.session.user_id
+        });
+      })
+      .catch((e) => console.log(e));
+  }else{
+    res.redirect('/');
+  }
 };

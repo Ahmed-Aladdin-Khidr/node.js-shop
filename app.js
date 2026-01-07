@@ -5,8 +5,6 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDbStore = require("connect-mongodb-session")(session);
 
-const User = require("./models/user");
-
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
@@ -33,15 +31,6 @@ app.use(
     store: store
   })
 );
-
-app.use((req, res, next) => {
-  User.findById("695d5d59b09c32a3886f6e5b")
-    .then((user) => {
-      req.user = user;
-      next();
-    })
-    .catch((err) => console.log(err));
-});
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
