@@ -20,6 +20,7 @@
     "@dr.pogodin/csurf": "^1.16.7",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.1",
+    "connect-flash": "^0.1.1",
     "connect-mongodb-session": "^5.0.0",
     "ejs": "^3.1.10",
     "express": "^5.2.1",

@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDbStore = require("connect-mongodb-session")(session);
 const csrf = require("@dr.pogodin/csurf");
+const flash = require('connect-flash');
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
@@ -39,6 +40,7 @@ app.use((req, res, next) => {
   res.locals.csrfToken = req.csrfToken();
   next();
 });
+app.use(flash());
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
