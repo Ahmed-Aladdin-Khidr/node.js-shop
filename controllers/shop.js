@@ -36,7 +36,6 @@ exports.getIndex = (req, res, next) => {
         prods: products,
         pageTitle: "Shop",
         path: "/",
-        isAuth: req.session.user_id,
       });
     })
     .catch((err) => console.log(err));

@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDbStore = require("connect-mongodb-session")(session);
+const csrf = require("@dr.pogodin/csurf");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
@@ -15,8 +16,9 @@ const MONGODB_URI = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PW}@c
 const app = express();
 const store = new MongoDbStore({
   uri: MONGODB_URI,
-  collection: 'sessions'
+  collection: "sessions",
 });
+const csrfProtection = csrf();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -28,9 +30,15 @@ app.use(
     secret: "Long String Value",
     resave: false,
     saveUninitialized: false,
-    store: store
+    store: store,
   })
 );
+app.use(csrfProtection);
+app.use((req, res, next) => {
+  res.locals.isAuth = req.session.user_id;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
