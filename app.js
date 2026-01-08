@@ -40,12 +40,6 @@ app.use(errorsController.get404);
 mongoose
   .connect(MONGODB_URI)
   .then((r) => {
-    // const user = new User({
-    //   name: "Ahmed Aladdin",
-    //   email: "ahmed3laa3132@gmail.com",
-    //   cart: { items: [] },
-    // });
-    // user.save();
     app.listen(3000, "localhost");
   })
   .catch((e) => console.log(e));
