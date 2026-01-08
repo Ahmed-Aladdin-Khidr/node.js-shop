@@ -9,7 +9,6 @@ exports.getProducts = (req, res, next) => {
         prods: products,
         pageTitle: "Shop",
         path: "/products",
-        isAuth: req.session.user_id,
       });
     })
     .catch((err) => console.log(err));
@@ -23,7 +22,6 @@ exports.getProduct = (req, res, next) => {
         pageTitle: product.title,
         path: "/products",
         product,
-        isAuth: req.session.user_id,
       });
     })
     .catch((err) => console.log(err));
@@ -50,7 +48,6 @@ exports.getCart = (req, res, next) => {
         path: "/cart",
         pageTitle: "Your Cart",
         products: products,
-        isAuth: req.session.user_id,
       });
     })
     .catch((e) => console.log(e));
@@ -115,7 +112,6 @@ exports.getOrders = (req, res, next) => {
         path: "/orders",
         pageTitle: "Your Orders",
         orders: orders,
-        isAuth: req.session.user_id,
       });
     })
     .catch((e) => console.log(e));

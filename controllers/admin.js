@@ -7,7 +7,6 @@ exports.getEditProduct = (req, res, next) => {
       pageTitle: "Add Product",
       path: "/admin/edit-product",
       editing: false,
-      isAuth: req.session.user_id,
     });
   }
   const prodId = req.params.productId;
@@ -22,7 +21,6 @@ exports.getEditProduct = (req, res, next) => {
         path: "/admin/edit-product",
         editing: editMode,
         product: prod,
-        isAuth: req.session.user_id,
       });
     })
     .catch((e) => console.log(e));
@@ -73,8 +71,7 @@ exports.getProducts = (req, res, next) => {
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
-        path: "/admin/products",
-        isAuth: req.session.user_id,
+        path: "/admin/products"
       });
     })
     .catch((e) => console.log(e));
