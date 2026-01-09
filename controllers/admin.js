@@ -45,20 +45,22 @@ exports.postAddProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   Product.findById(req.body.productId)
     .then((product) => {
+      if (product.userId.toString() !== req.session.user_id) {
+        return res.redirect("/");
+      }
       product.title = req.body.title;
       product.price = req.body.price;
       product.description = req.body.description;
       product.imageUrl = req.body.imageUrl;
-      return product.save();
-    })
-    .then((r) => {
-      res.redirect("/admin/products");
+      return product.save().then((r) => {
+        res.redirect("/admin/products");
+      });
     })
     .catch((e) => console.log(e));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
-  Product.findByIdAndDelete(req.body.productId)
+  Product.deleteOne({ _id: req.body.productId, userId: req.user._id })
     .then((r) => {
       res.redirect("/admin/products");
     })
@@ -66,12 +68,12 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
-  Product.find()
+  Product.find({ userId: req.session.user_id })
     .then((products) => {
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
-        path: "/admin/products"
+        path: "/admin/products",
       });
     })
     .catch((e) => console.log(e));
