@@ -1,13 +1,28 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+
+let transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: process.env.SMTP_PORT,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_LOGIN,
+    pass: process.env.SMTP_KEY,
+  },
+  tls: {
+    // This allows the connection even if the certificate is not trusted
+    rejectUnauthorized: false
+  }
+});
 
 exports.getLogin = (req, res, next) => {
-  let message = req.flash('error');
-  message = (message.length > 0) ? message[0] : null;
+  let message = req.flash("error");
+  message = message.length > 0 ? message[0] : null;
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    errorMessage: message
+    errorMessage: message,
   });
 };
 
@@ -17,7 +32,7 @@ exports.postLogin = (req, res, next) => {
   User.findOne({ email: email })
     .then((user) => {
       if (!user) {
-        req.flash('error', 'Invalid email or password.')
+        req.flash("error", "Invalid email or password.");
         return res.redirect("/login");
       }
       bcrypt
@@ -38,13 +53,13 @@ exports.postLogin = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
-  let message = req.flash('error');
-  message = (message.length > 0) ? message[0] : null;
+  let message = req.flash("error");
+  message = message.length > 0 ? message[0] : null;
   res.render("auth/signup", {
     path: "/signup",
     pageTitle: "Signup",
     isAuth: false,
-    errorMessage: message
+    errorMessage: message,
   });
 };
 
@@ -55,7 +70,7 @@ exports.postSignup = (req, res, next) => {
   User.findOne({ email: email })
     .then((user) => {
       if (user) {
-        req.flash('error', 'E-Mail exists already.')
+        req.flash("error", "E-Mail exists already.");
         return res.redirect("/signup");
       }
       return bcrypt
@@ -69,6 +84,14 @@ exports.postSignup = (req, res, next) => {
           return user.save();
         })
         .then((r) => {
+          transporter
+            .sendMail({
+              from: "shop@aladdinpop.com",
+              to: email,
+              subject: "Signup Succeeded!",
+              html: "<h1>You have successfully signedup!</h1>",
+            })
+            .catch((e) => console.log(e));
           res.redirect("/login");
         });
     })
