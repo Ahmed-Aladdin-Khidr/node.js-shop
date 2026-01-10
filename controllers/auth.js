@@ -19,14 +19,17 @@ let transporter = nodemailer.createTransport({
 });
 
 exports.getLogin = (req, res, next) => {
+  if (req.session.user_id){
+    return res.redirect('/');
+  }
   let message = req.flash("error");
   message = message.length > 0 ? message[0] : null;
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
     errorMessage: message,
-    oldInput: {email: ''},
-    validationErrors: []
+    oldInput: { email: "" },
+    validationErrors: [],
   });
 };
 
@@ -38,9 +41,9 @@ exports.postLogin = (req, res, next) => {
     return res.status(422).render("auth/login", {
       path: "/login",
       pageTitle: "Login",
-      oldInput: {email: email},
+      oldInput: { email: email },
       errorMessage: errors.array()[0].msg,
-      validationErrors: errors.array()
+      validationErrors: errors.array(),
     });
   }
   User.findOne({ email: email })
@@ -49,9 +52,9 @@ exports.postLogin = (req, res, next) => {
         return res.status(422).render("auth/login", {
           path: "/login",
           pageTitle: "Login",
-          oldInput: {email: email},
-          errorMessage: 'Invalid email or password.',
-          validationErrors: []
+          oldInput: { email: email },
+          errorMessage: "Invalid email or password.",
+          validationErrors: [],
         });
       }
       bcrypt
@@ -61,16 +64,16 @@ exports.postLogin = (req, res, next) => {
             req.user = user;
             req.session.user_id = user._id.toString();
             return req.session.save((e) => {
-              return res.status(422).render("auth/login", {
-                path: "/login",
-                pageTitle: "Login",
-                oldInput: {email: email},
-                errorMessage: 'Invalid email or password.',
-                validationErrors: []
-              });
+              return res.redirect("/");
             });
           }
-          res.redirect("/login");
+          res.status(422).render("/login", {
+            path: "/login",
+            pageTitle: "Login",
+            oldInput: { email: email },
+            errorMessage: "Invalid email or password.",
+            validationErrors: [],
+          });
         })
         .catch((error) => console.log(error));
     })
@@ -82,13 +85,13 @@ exports.getSignup = (req, res, next) => {
     path: "/signup",
     pageTitle: "Signup",
     isAuth: false,
-    errorMessage: message,
+    errorMessage: "",
     oldInput: {
-      email: '',
-      password: '',
-      confirmPassword: '',
+      email: "",
+      password: "",
+      confirmPassword: "",
     },
-    validationErrors: []
+    validationErrors: [],
   });
 };
 
@@ -107,7 +110,7 @@ exports.postSignup = (req, res, next) => {
         password: password,
         confirmPassword: req.body.confirmPassword,
       },
-      validationErrors: errors.array()
+      validationErrors: errors.array(),
     });
   }
 
