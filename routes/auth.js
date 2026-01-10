@@ -9,7 +9,10 @@ router.get("/login", authController.getLogin);
 router.post(
   "/login",
   [
-    body("email").isEmail().withMessage("Enter a valid E-Mail address."),
+    body("email")
+      .isEmail()
+      .withMessage("Enter a valid E-Mail address.")
+      .normalizeEmail(),
     body("password", "Password has to be valid.")
       .isAlphanumeric()
       .isLength({ min: 6 }),
@@ -29,7 +32,8 @@ router.post(
             return Promise.reject("E-Mail exists already.");
           }
         });
-      }),
+      })
+      .normalizeEmail(),
     body(
       "password",
       "Please enter a password with only numbers and text and at least 5 characters."
