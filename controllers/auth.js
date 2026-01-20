@@ -19,8 +19,8 @@ let transporter = nodemailer.createTransport({
 });
 
 exports.getLogin = (req, res, next) => {
-  if (req.session.user_id){
-    return res.redirect('/');
+  if (req.session.user_id) {
+    return res.redirect("/");
   }
   let message = req.flash("error");
   message = message.length > 0 ? message[0] : null;
@@ -77,7 +77,11 @@ exports.postLogin = (req, res, next) => {
         })
         .catch((error) => console.log(error));
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.getSignup = (req, res, next) => {
@@ -132,7 +136,11 @@ exports.postSignup = (req, res, next) => {
           subject: "Signup Succeeded!",
           html: "<h1>You have successfully signedup!</h1>",
         })
-        .catch((e) => console.log(e));
+        .catch((err) => {
+          const error = new Error(err);
+          error.httpStatusCode = 500;
+          return next(error);
+        });
       res.redirect("/login");
     });
 };
@@ -183,7 +191,11 @@ exports.postReset = (req, res, next) => {
           return res.redirect("/login");
         });
       })
-      .catch((e) => console.log(e));
+      .catch((err) => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+      });
   });
 };
 

@@ -45,8 +45,11 @@ app.use(flash());
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-
+app.get('/500', errorsController.get500);
 app.use(errorsController.get404);
+app.use((error, req, res, next) => {
+  res.redirect('/500');
+});
 mongoose
   .connect(MONGODB_URI)
   .then((r) => {
