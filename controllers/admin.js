@@ -44,7 +44,7 @@ exports.postAddProduct = (req, res, next) => {
     title: req.body.title,
     price: req.body.price,
     description: req.body.description,
-    image: req.body.image,
+    image: req.file,
     userId: req.session.user_id,
   });
   const errors = validationResult(req);
