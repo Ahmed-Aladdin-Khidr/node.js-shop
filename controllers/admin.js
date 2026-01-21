@@ -44,7 +44,7 @@ exports.postAddProduct = (req, res, next) => {
     title: req.body.title,
     price: req.body.price,
     description: req.body.description,
-    imageUrl: req.body.imageUrl,
+    image: req.body.image,
     userId: req.session.user_id,
   });
   const errors = validationResult(req);
@@ -58,7 +58,7 @@ exports.postAddProduct = (req, res, next) => {
         title: req.body.title,
         price: req.body.price,
         description: req.body.description,
-        imageUrl: req.body.imageUrl,
+        image: req.body.image,
       },
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array(),

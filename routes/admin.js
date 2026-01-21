@@ -13,7 +13,6 @@ router.post(
   isAuth,
   [
     body("title", "Title must be min 3.").isString().isLength({ min: 3 }).trim(),
-    body("imageUrl", "Image URL must be a valid URL.").isURL(),
     body("price", "Price must be a float number.").isFloat(),
     body("description", "Description must be min 5 and max 400 characters.").isLength({ min: 5, max: 400 }).trim(),
   ],
@@ -30,7 +29,6 @@ router.post(
   isAuth,
   [
     body("title", "Title must be alphanumeric with min 3.").isString().isLength({ min: 3 }).trim(),
-    body("imageUrl", "Image URL must be a valid URL.").isURL(),
     body("price", "Price must be a float number.").isFloat(),
     body("description", "Description must be min 5 and max 400 characters.").isLength({ min: 5, max: 400 }).trim(),
   ],
