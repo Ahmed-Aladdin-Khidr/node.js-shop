@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const MongoDbStore = require("connect-mongodb-session")(session);
 const csrf = require("@dr.pogodin/csurf");
-const flash = require('connect-flash');
-const multer = require('multer');
+const flash = require("connect-flash");
+const multer = require("multer");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
@@ -24,20 +24,32 @@ const csrfProtection = csrf();
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'images');
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
     const filename = new Date().toISOString() + file.originalname;
-    const sanitizedFileName = filename.replace(/:/g, '-');
+    const sanitizedFileName = filename.replace(/:/g, "-");
     cb(null, sanitizedFileName);
-  }
+  },
 });
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(multer({storage: fileStorage}).single('image'));
+app.use(multer({ storage: fileStorage }).single("image"));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(
@@ -46,7 +58,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     store: store,
-  })
+  }),
 );
 app.use(csrfProtection);
 app.use((req, res, next) => {
@@ -59,11 +71,11 @@ app.use(flash());
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-app.get('/500', errorsController.get500);
+app.get("/500", errorsController.get500);
 app.use(errorsController.get404);
 app.use((error, req, res, next) => {
   console.log(error);
-  res.redirect('/500');
+  res.redirect("/500");
 });
 mongoose
   .connect(MONGODB_URI)
