@@ -40,6 +40,7 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
+  console.log(req.file);
   const product = new Product({
     title: req.body.title,
     price: req.body.price,
@@ -47,9 +48,10 @@ exports.postAddProduct = (req, res, next) => {
     image: req.file,
     userId: req.session.user_id,
   });
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).render("admin/edit-product", {
+    return res.status(422).render("admin/add-product", {
       pageTitle: "Add Product",
       path: "/admin/add-product",
       editing: false,
