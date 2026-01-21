@@ -40,7 +40,6 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
-  console.log(req.file);
   if (!req.file) {
     return res.status(422).render("admin/edit-product", {
       pageTitle: "Add Product",
@@ -60,7 +59,7 @@ exports.postAddProduct = (req, res, next) => {
     title: req.body.title,
     price: req.body.price,
     description: req.body.description,
-    imageUrl: req.file.path,
+    imageUrl: '/' + req.file.path,
     userId: req.session.user_id,
   });
 
@@ -121,7 +120,7 @@ exports.postEditProduct = (req, res, next) => {
       product.price = req.body.price;
       product.description = req.body.description;
       if (image){
-        product.imageUrl = req.file.path;
+        product.imageUrl = '/' + req.file.path;
       }
       return product.save().then((r) => {
         res.redirect("/admin/products");
@@ -135,7 +134,7 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.postDeleteProduct = (req, res, next) => {
-  Product.deleteOne({ _id: req.body.productId, userId: req.user._id })
+  Product.deleteOne({ _id: req.body.productId, userId: req.session.user_id })
     .then((r) => {
       res.redirect("/admin/products");
     })
