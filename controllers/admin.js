@@ -1,6 +1,7 @@
 const { validationResult } = require("express-validator");
 const fileHelper = require("../util/file");
 const Product = require("../models/product");
+const {adminViewSettings} = require('../data/settings');
 
 exports.getEditProduct = (req, res, next) => {
   const editMode = req.query.edit;
@@ -135,12 +136,15 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
   Product.findById(req.body.productId)
-    .then(prod => {
-      if (!prod){
-        return next(new Error('Product was not found.'))
+    .then((prod) => {
+      if (!prod) {
+        return next(new Error("Product was not found."));
       }
       fileHelper.deleteFile(prod.imageUrl);
-      return Product.deleteOne({ _id: req.body.productId, userId: req.session.user_id });
+      return Product.deleteOne({
+        _id: req.body.productId,
+        userId: req.session.user_id,
+      });
     })
     .then((r) => {
       res.redirect("/admin/products");
@@ -153,12 +157,28 @@ exports.postDeleteProduct = (req, res, next) => {
 };
 
 exports.getProducts = (req, res, next) => {
+  const page = +req.query.page || 1;
+  let totalItems = 0;
+
   Product.find({ userId: req.session.user_id })
+    .countDocuments()
+    .then((numProducts) => {
+      totalItems = numProducts;
+      return Product.find()
+        .skip((page - 1) * adminViewSettings.itemsPerPage)
+        .limit(adminViewSettings.itemsPerPage);
+    })
     .then((products) => {
       res.render("admin/products", {
         prods: products,
         pageTitle: "Admin Products",
         path: "/admin/products",
+        currentPage: page,
+        hasNextPage: adminViewSettings.itemsPerPage * page < totalItems,
+        hasPreviousPage: page > 1,
+        nextPage: page + 1,
+        previousPage: page - 1,
+        lastPage: Math.ceil(totalItems / adminViewSettings.itemsPerPage),
       });
     })
     .catch((err) => {
