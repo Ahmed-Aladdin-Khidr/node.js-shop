@@ -65,7 +65,7 @@ exports.postAddProduct = (req, res, next) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(422).render("admin/add-product", {
+    return res.status(422).render("admin/edit-product", {
       pageTitle: "Add Product",
       path: "/admin/add-product",
       editing: false,
@@ -134,25 +134,29 @@ exports.postEditProduct = (req, res, next) => {
     });
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  Product.findById(req.body.productId)
+exports.deleteProduct = (req, res, next) => {
+  Product.findById(req.params.productId)
     .then((prod) => {
       if (!prod) {
         return next(new Error("Product was not found."));
       }
       fileHelper.deleteFile(prod.imageUrl);
       return Product.deleteOne({
-        _id: req.body.productId,
+        _id: req.params.productId,
         userId: req.session.user_id,
       });
     })
     .then((r) => {
-      res.redirect("/admin/products");
+      res.status(200).json({
+        status: 200,
+        message: 'Success!'
+      });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+      res.status(500).json({
+        status: 500,
+        message: 'Error deleting product!'
+      });
     });
 };
 
