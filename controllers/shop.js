@@ -4,6 +4,7 @@ const PDFDocument = require("pdfkit");
 const Product = require("../models/product");
 const Order = require("../models/order");
 const User = require("../models/user");
+const stripe = require('stripe')(process.env.STRIPE_SECRET)
 const shopViewSettings = require('../data/settings');
 
 exports.getProducts = (req, res, next) => {
@@ -138,6 +139,37 @@ exports.postDeleteCartItem = (req, res, next) => {
     });
 };
 
+exports.getCheckoutSuccess = (req, res, next) => {
+  let userMongooseObject;
+  User.findById(req.session.user_id)
+    .populate("cart.items.productId")
+    .then((user) => {
+      userMongooseObject = user;
+      const products = user.cart.items.map((i) => {
+        return { product: { ...i.productId._doc }, quantity: i.quantity };
+      });
+      const order = new Order({
+        products: products,
+        user: {
+          email: user.email,
+          userId: user,
+        },
+      });
+      return order.save();
+    })
+    .then((r) => {
+      return userMongooseObject.clearCart();
+    })
+    .then((r) => {
+      res.redirect("/orders");
+    })
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
+    });
+};
+
 exports.postOrder = (req, res, next) => {
   let userMongooseObject;
   User.findById(req.session.user_id)
@@ -261,19 +293,44 @@ exports.getInvoice = (req, res, next) => {
 };
 
 exports.getCheckout = (req, res, next) => {
+  let products;
+  let total = 0;
+
   User.findById(req.session.user_id)
     .populate("cart.items.productId")
     .then((user) => {
-      const products = user.cart.items;
-      let total = 0;
+      products = user.cart.items;
       products.forEach(p => {
         total += p.quantity * p.productId.price;
       });
+
+      return stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        line_items: products.map(p=>{
+          return {
+            price_data: {
+              currency: 'usd',
+              unit_amount: p.productId.price * 100,
+              product_data: {
+                name: p.productId.title,
+                description: p.productId.description,
+              }
+            },
+            quantity: p.quantity
+          };
+        }),
+        mode: 'payment',
+        success_url: req.protocol + '://' + req.get('host') + '/checkout/success',
+        cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel'
+      });
+    }).then(session => {
       res.render("shop/checkout", {
         path: "/checkout",
         pageTitle: "Checkout",
         products: products,
-        totalSum: total
+        totalSum: total,
+        sessionUrl: session.url,
+        clientKey: process.env.STRIPE_CLIENT
       });
     })
     .catch((err) => {
