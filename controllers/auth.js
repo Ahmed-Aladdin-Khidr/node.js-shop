@@ -67,7 +67,7 @@ exports.postLogin = (req, res, next) => {
               return res.redirect("/");
             });
           }
-          res.status(422).render("/login", {
+          res.status(422).render("auth/login", {
             path: "/login",
             pageTitle: "Login",
             oldInput: { email: email },
